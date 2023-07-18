@@ -1,0 +1,34 @@
+import datetime
+import pyjokes
+import schedule
+import time
+import tweepy
+from config import API_KEY, API_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET
+
+def get_joke_of_the_day():
+    today = datetime.date.today()
+    joke = pyjokes.get_joke(language='en', category='neutral')
+    return f"Joke of the day ({today}): {joke}"
+
+def display_joke():
+    joke_of_the_day = get_joke_of_the_day()
+    print(joke_of_the_day)
+    post_to_twitter(joke_of_the_day)
+
+def post_to_twitter(joke):
+    auth = tweepy.OAuthHandler(API_KEY, API_SECRET)
+    auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+
+    api = tweepy.API(auth)
+    api.update_status(joke)
+
+def schedule_joke():
+    # Schedule the display_joke() function to run every day at a specific time
+    schedule.every().day.at("18:57").do(display_joke)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+if __name__ == "__main__":
+    schedule_joke()
